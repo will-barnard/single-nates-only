@@ -17,7 +17,7 @@ public class JdbcImageDao implements ImageDao {
     @Override
     public int createImage(String imagePath, int userId) {
         int imageId;
-        String sql = "INSERT into image (image_path, user_id) " +
+        String sql = "INSERT into images (image_path, user_id) " +
                 "VALUES (?, ?) " +
                 "RETURNING image_id;";
         try {
@@ -33,7 +33,7 @@ public class JdbcImageDao implements ImageDao {
     @Override
     public String getImagePathById(int imageId) {
         String path = null;
-        String sql = "SELECT image_path FROM image " +
+        String sql = "SELECT image_path FROM images " +
                 "WHERE image_id = ?;";
         try {
             path = jdbcTemplate.queryForObject(sql, String.class, imageId);

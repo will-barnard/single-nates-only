@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -25,8 +27,34 @@ public class ProfileController {
     @Autowired
     private ProfileDao profileDao;
 
+    // Add this method to set CORS headers manually
+    @ModelAttribute
+    public void setResponseHeader(HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+    }
+
     @GetMapping("/profiles/{userId}")
     public ResponseEntity<Profile> getProfileByUserId(@PathVariable int userId) {
+        Profile profile = profileDao.getProfileByUserId(userId);
+        if (profile != null) {
+            return ResponseEntity.ok(profile);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/profiles/checkIfProfile")
+    public ResponseEntity<Boolean> checkIfProfileExists(Principal principal) {
+        int userId = userDao.getUserByUsername(principal.getName()).getId();
+        boolean exists = profileDao.checkIfProfileExists(userId);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/profiles/user")
+    public ResponseEntity<Profile> getProfileByPrincipal(Principal principal) {
+        int userId = userDao.getUserByUsername(principal.getName()).getId();
         Profile profile = profileDao.getProfileByUserId(userId);
         if (profile != null) {
             return ResponseEntity.ok(profile);
@@ -41,19 +69,30 @@ public class ProfileController {
     }
 
     @PostMapping("/profiles")
-    public ResponseEntity<Integer> createProfile(@RequestBody Profile profile) {
-        int profileId = profileDao.createProfile(profile);
-        if (profileId > 0) {
-            return ResponseEntity.ok(profileId);
+    public Profile createProfile(@RequestBody Profile profile, Principal principal) {
+        Profile newProfile = null;
+        int userId = userDao.getUserByUsername(principal.getName()).getId();
+        profile.setUserId(userId);
+        try {
+            newProfile = profileDao.createProfile(profile);
+        } catch (Exception e) {
+            System.out.println("Something went wrong creating the profile in db");
+            return null; // or handle the error appropriately
         }
-        return ResponseEntity.badRequest().build();
+        return newProfile;
     }
 
-    @PutMapping("/profiles/{userId}")
-    public ResponseEntity<Void> updateProfile(@PathVariable int userId, @RequestBody Profile profile) {
+    @PutMapping("/profiles")
+    public Profile updateProfile(@RequestBody Profile profile, Principal principal) {
+        Profile updatedProfile = null;
+        int userId = userDao.getUserByUsername(principal.getName()).getId();
         profile.setUserId(userId);
-        profileDao.updateProfile(profile);
-        return ResponseEntity.ok().build();
+        try {
+            updatedProfile = profileDao.updateProfile(profile);
+        } catch (Exception e) {
+            System.out.println("Something went wrong updating the profile in db");
+        }
+        return updatedProfile;
     }
 
     @DeleteMapping("/profiles/{userId}")

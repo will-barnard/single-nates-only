@@ -7,9 +7,10 @@ import java.util.List;
 public interface ProfileDao {
 
     Profile getProfileByUserId(int userId);
+    boolean checkIfProfileExists(int userId);
     List<Profile> getAllProfiles();
-    int createProfile(Profile profile);
-    void updateProfile(Profile profile);
+    Profile createProfile(Profile profile);
+    Profile updateProfile(Profile profile);
     void deleteProfile(int userId);
 
 }

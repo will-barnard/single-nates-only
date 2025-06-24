@@ -32,6 +32,18 @@ public class JdbcProfileDao implements ProfileDao {
     }
 
     @Override
+    public boolean checkIfProfileExists(int userId) {
+        String sql = "SELECT COUNT(*) FROM profiles WHERE user_id = ?";
+        try {
+            Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+            return count != null && count > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
     public List<Profile> getAllProfiles() {
         List<Profile> profiles = new ArrayList<>();
         String sql = "SELECT * FROM profiles";
@@ -47,29 +59,36 @@ public class JdbcProfileDao implements ProfileDao {
     }
 
     @Override
-    public int createProfile(Profile profile) {
-        String sql = "INSERT INTO profiles (user_id, profile_picture_id, first_name, last_name, gender_identity, interested_in, location, bio, skills, criminal_record, education) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public Profile createProfile(Profile profile) {
+        Profile newProfile = null;
+        String sql = "INSERT INTO profiles (user_id, profile_picture_id, first_name, last_name, gender_identity, interested_in, location, bio, skills, criminal_record, education) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             jdbcTemplate.update(sql, profile.getUserId(), profile.getProfilePictureId(), profile.getFirstName(), 
             profile.getLastName(), profile.getGenderIdentity(), profile.getInterestedIn(), profile.getLocation(), 
             profile.getBio(), profile.getSkills(), profile.getCriminalRecord(), profile.getEducation());
-            return jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+            newProfile = getProfileByUserId(profile.getUserId());
+            return newProfile;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return 0;
+        return null;
     }
 
     @Override
-    public void updateProfile(Profile profile) {
+    public Profile updateProfile(Profile profile) {
+        Profile updatedProfile = null;
         String sql = "UPDATE profiles SET profile_picture_id = ?, first_name = ?, last_name = ?, gender_identity = ?, interested_in = ?, location = ?, bio = ?, skills = ?, criminal_record = ?, education = ? WHERE user_id = ?";
         try {
             jdbcTemplate.update(sql, profile.getProfilePictureId(), profile.getFirstName(), profile.getLastName(), 
             profile.getGenderIdentity(), profile.getInterestedIn(), profile.getLocation(), profile.getBio(), 
             profile.getSkills(), profile.getCriminalRecord(), profile.getEducation(), profile.getUserId());
+            updatedProfile = getProfileByUserId(profile.getUserId());
+            return updatedProfile;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     @Override
