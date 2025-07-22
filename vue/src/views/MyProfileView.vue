@@ -2,7 +2,12 @@
     <div v-if="userLoaded && profile" class="profile-container">
         <h1>My Profile</h1>
         <div class="profile-image-container">
-            <img :src="imgPath || '/img/placeholder.jpeg'" class="profile-image" />
+            <template v-if="imgPath">
+                <img :src="imgPath" class="profile-image" />
+            </template>
+            <template v-else>
+                <i class="fa fa-user-circle profile-image fa-6x" aria-hidden="true"></i>
+            </template>
         </div>
         <div class="profile-field">
             <strong>First Name:</strong> {{ profile.firstName }}
@@ -50,13 +55,20 @@ export default {
                 this.userLoaded = true;
                 this.profile = { ...this.$store.state.userProfile };
                 if (!this.profile.img && this.profile.profilePictureId) {
-                    ImageService.getImage(this.profile.profilePictureId).then(
-                        (response) => {
-                            const base64 = ImageService.parseImg(response);
-                            this.imgPath = `data:image/png;base64,${base64}`;
-                            this.showImage = true;
-                        }
-                    );
+                    const cached = this.$store.state.imageCache[this.profile.profilePictureId];
+                    if (cached) {
+                        this.imgPath = `data:image/png;base64,${cached}`;
+                        this.showImage = true;
+                    } else {
+                        ImageService.getImage(this.profile.profilePictureId).then(
+                            (response) => {
+                                const base64 = ImageService.parseImg(response);
+                                this.imgPath = `data:image/png;base64,${base64}`;
+                                this.showImage = true;
+                                this.$store.commit('CACHE_IMAGE', { id: this.profile.profilePictureId, data: base64 });
+                            }
+                        );
+                    }
                 }
             } else {
                 setTimeout(checkUserLoaded, 500);

@@ -33,73 +33,74 @@ export default {
 
 <style>
 :root {
-  --primary-color: #5cc0b7;
-  --secondary-color: #35495e;
-  --tertiary-color: #69a6d4;
+  --primary-color: #ff6f61; /* Warm coral red for primary */
+  --secondary-color: #ffe5e0; /* Light coral for backgrounds */
+  --tertiary-color: #ffb3ab; /* Soft coral accent */
   --text-color: #2c3e50;
 
-  --background-color: #c5eeff;
+  --background-color: #ffe5e0;
   --form-background-color: #ffffff;
-  --form-border-color: #e0e0e0;
+  --form-border-color: #ffb3ab;
   --form-input-color: #333333;
-  --form-input-border-color: #cccccc;
-  --form-input-focus-color: #42b983;
-  --form-button-color: #42b983;
+  --form-input-border-color: #ffb3ab;
+  --form-input-focus-color: #ff6f61;
+  --form-button-color: #ff6f61;
 
-  --link-background-color: #527aff;
+  --link-background-color: #ff6f61;
 
   background-color: var(--background-color);
   color: var(--text-color);
 
-  font-family: Arial, sans-serif;
-
-
+  font-family: 'Quicksand', 'Nunito', 'Montserrat', 'Segoe UI', 'Arial', sans-serif;
 }
 .form-container {
   background-color: var(--form-background-color);
   border: 1px solid var(--form-border-color);
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 8px;
 }
 .generic-buttons p {
   margin: 10px 0;
   color: white;
   cursor: pointer;
-  background-color: var(--secondary-color);
+  background-color: var(--primary-color);
   padding: 10px;
-  border-radius: 5px;;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(126,200,227,0.08);
 }
 .top-nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  width: 100%; /* Ensure it spans the full width */
-  box-sizing: border-box; /* Include padding in width calculation */
+  width: 100%;
+  box-sizing: border-box;
   z-index: 1000;
-  background-color: #263545;
+  background-color: var(--primary-color);
   color: white;
-  padding: 10px;
+  padding: 12px;
   text-align: center;
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 24px;
   font-size: 1.2em;
   font-weight: bold;
+  box-shadow: 0 2px 8px rgba(126,200,227,0.10);
 }
 .top-nav p {
   text-decoration: underline;
   margin: 0px;
 }
 #single-nates {
-  padding-top: 60px; /* Adjust padding to account for fixed nav height */
+  padding-top: 70px;
+  background: linear-gradient(135deg, #ffe5e0 0%, #ffb3ab 100%);
 }
 .meaning {
     color: white;
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color);
     padding: 10px;
     margin-bottom: 10px;
-    border-radius: 5px;
+    border-radius: 8px;
 }
 .spacer {
   flex-grow: 1;

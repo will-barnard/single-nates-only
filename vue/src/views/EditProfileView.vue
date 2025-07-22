@@ -6,10 +6,15 @@
                 <div>
                     <label for="profilePicture">Profile Picture:</label>
                     <!-- Display the current profile image or the uploaded preview, fallback to placeholder -->
-                    <div>
-                        <img :src="profilePicturePreview || imgPath || '/img/placeholder.jpeg'" 
-                             alt="Profile Picture Preview" 
-                             style="max-width: 100%; max-height: 200px; margin-bottom: 10px;" />
+                    <div class="profile-image-container">
+                        <template v-if="profilePicturePreview || imgPath">
+                            <img :src="profilePicturePreview || imgPath" 
+                                 alt="Profile Picture Preview" 
+                                 style="max-width: 100%; max-height: 200px; margin-bottom: 10px;" />
+                        </template>
+                        <template v-else>
+                            <i class="fa fa-user-circle fa-6x" style="color: #ccc; margin-bottom: 10px;"></i>
+                        </template>
                     </div>
                     <input type="file" id="profilePicture" @change="handleFileUpload" />
                 </div>
@@ -74,12 +79,18 @@ export default {
                 this.userLoaded = true;
                 this.profile = { ...this.$store.state.userProfile };
                 if (!this.profile.img && this.profile.profilePictureId) {
-                    ImageService.getImage(this.profile.profilePictureId).then(
-                        (response) => {
-                            const base64 = ImageService.parseImg(response);
-                            this.imgPath = `data:image/png;base64,${base64}`;
-                        }
-                    );
+                    const cached = this.$store.state.imageCache[this.profile.profilePictureId];
+                    if (cached) {
+                        this.imgPath = `data:image/png;base64,${cached}`;
+                    } else {
+                        ImageService.getImage(this.profile.profilePictureId).then(
+                            (response) => {
+                                const base64 = ImageService.parseImg(response);
+                                this.imgPath = `data:image/png;base64,${base64}`;
+                                this.$store.commit('CACHE_IMAGE', { id: this.profile.profilePictureId, data: base64 });
+                            }
+                        );
+                    }
                 }
             } else {
                 setTimeout(checkUserLoaded, 500);
@@ -162,6 +173,17 @@ form button {
 
 form button:hover {
     background-color: #0056b3;
+}
+
+.profile-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.fa-user-circle {
+    color: #ccc;
 }
 </style>
 

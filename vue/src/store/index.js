@@ -10,7 +10,8 @@ export function createStore(currentToken, currentUser) {
       userProfile: {},
       userLoaded: false,
       profileList: [],
-      listLoaded: false
+      listLoaded: false,
+      imageCache: {} // Add image cache to store
     },
     mutations: {
       SET_AUTH_TOKEN(state, token) {
@@ -85,7 +86,10 @@ export function createStore(currentToken, currentUser) {
       },
       RESET_PROFILE_LOADED(state) {
         state.userLoaded = false;
-      }
+      },
+      CACHE_IMAGE(state, { id, data }) {
+        state.imageCache[id] = data;
+      },
     },
   });
   return store;
